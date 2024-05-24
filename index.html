@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player Design Easy Tutorials</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/9465b16edf.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container">
+    <div class="music-player">
+        <nav>
+            <div class="circle">
+                <i class="fa-solid fa-angle-left"></i>
+            </div>
+            <div class="circle">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+        </nav>
+
+        <div class="song-list" id="song-list">
+            <ul>
+                <li onclick="loadSong(0)">Hơn em chỗ nào</li>
+                <li onclick="loadSong(1)">Trách ai bây giờ</li>
+                <li onclick="loadSong(2)">Rồi em sẽ gặp một chàng trai khác</li>
+                <li onclick="loadSong(3)">Mơ khúc bên người</li>
+                <li onclick="loadSong(4)">Ngày về</li>
+                <li onclick="loadSong(5)">Yên bình</li>
+                <li onclick="loadSong(6)">Rồi ta sẽ ngắm pháo hoa cùng nhau</li>
+            </ul>
+        </div>
+
+        <img src="media/ThuyChi.png" class="song-img" id="song-img">
+        <h1 id="song-title">Hơn em chỗ nào</h1>
+        <p id="song-artist">Thùy Chi x Viruss</p>
+
+        <audio id="song">
+            <source src="media/honemchonao.mp3" type="audio/mpeg">
+        </audio>
+        <input type="range" value="0" id="progress">
+
+        <div class="controls">
+            <div onclick="prevSong()"><i class="fa-solid fa-backward"></i></div>
+            <div onclick="playPause()"><i class="fa-solid fa-play" id="ctrlIcon"></i></div>
+            <div onclick="nextSong()"><i class="fa-solid fa-forward"></i></div>
+            <div onclick="toggleRepeat()"><i class="fa-solid fa-repeat" id="repeatIcon"></i></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let progress = document.getElementById("progress");
+    let song = document.getElementById("song");
+    let ctrlIcon = document.getElementById("ctrlIcon");
+    let repeatIcon = document.getElementById("repeatIcon");
+    let songImg = document.getElementById("song-img");
+    let songTitle = document.getElementById("song-title");
+    let songArtist = document.getElementById("song-artist");
+
+    let isRepeating = false;
+    let songIndex = 0;
+
+    const songs = [
+        {
+            title: "Hơn em chỗ nào",
+            artist: "Thùy Chi x Viruss",
+            src: "media/honemchonao.mp3",
+            img: "media/ThuyChi.png"
+        },
+        {
+            title: "Trách ai bây giờ",
+            artist: "Đông Nhi",
+            src: "media/trachaibaygio.mp3",
+            img: "media/DongNhi.png"
+        },
+        {
+            title: "Rồi em sẽ gặp một chàng trai khác",
+            artist: "Hippo Happy",
+            src: "media/roiemsegapmotchangtraikhac.mp3",
+            img: "media/thumbnail.png"
+        },
+        {
+            title: "Mơ khúc bên người",
+            artist: "Huyền Chi",
+            src: "media/mokhucbennguoi.mp3",
+            img: "media/thatkiem.png"
+        },
+        {
+            title: "Ngày về",
+            artist: "Tiến Đạt",
+            src: "media/ngayve.mp3",
+            img: "media/thatkiem.png"
+        },
+        {
+            title: "Yên bình",
+            artist: "Tiến Đạt x Huyền Chi",
+            src: "media/yenbinh.mp3",
+            img: "media/thatkiem.png"
+        },
+        {
+            title: "Rồi ta sẽ ngắm pháo hoa cùng nhau",
+            artist: "O.lew",
+            src: "media/roitasengamphaohoacungnhau.mp3",
+            img: "media/Olew.png"
+        }
+    ];
+
+    function loadSong(index) {
+        songIndex = index;
+        song.src = songs[index].src;
+        songImg.src = songs[index].img;
+        songTitle.textContent = songs[index].title;
+        songArtist.textContent = songs[index].artist;
+        song.load();
+        playPause();
+    }
+
+    song.onloadedmetadata = function(){
+        progress.max = song.duration;
+        progress.value = song.currentTime;
+    }
+
+    function playPause(){
+        if(ctrlIcon.classList.contains("fa-pause")){
+            song.pause();
+            ctrlIcon.classList.remove("fa-pause");
+            ctrlIcon.classList.add("fa-play");
+        }
+        else{
+            song.play();
+            ctrlIcon.classList.add("fa-pause");
+            ctrlIcon.classList.remove("fa-play");
+        }
+    }
+
+    function toggleRepeat() {
+        isRepeating = !isRepeating;
+        repeatIcon.classList.toggle("active", isRepeating);
+    }
+
+    song.onended = function() {
+        if(isRepeating) {
+            song.currentTime = 0;
+            song.play();
+        } else {
+            nextSong();
+        }
+    }
+
+    if(song.play()){
+        setInterval(()=>{
+            progress.value = song.currentTime;
+        }, 500);
+    }
+
+    progress.onchange = function(){
+        song.currentTime = progress.value;
+        if(ctrlIcon.classList.contains("fa-play")){
+            playPause();
+        }
+    }
+
+    function prevSong() {
+        songIndex = (songIndex > 0) ? songIndex - 1 : songs.length - 1;
+        loadSong(songIndex);
+    }
+
+    function nextSong() {
+        songIndex = (songIndex < songs.length - 1) ? songIndex + 1 : 0;
+        loadSong(songIndex);
+    }
+
+    document.querySelector(".fa-bars").addEventListener("click", (event) => {
+        event.stopPropagation();
+        const songList = document.getElementById("song-list");
+        songList.style.display = (songList.style.display === "block") ? "none" : "block";
+    });
+
+    document.addEventListener("click", (event) => {
+        const songList = document.getElementById("song-list");
+        if (songList.style.display === "block" && !event.target.closest(".music-player")) {
+            songList.style.display = "none";
+        }
+    });
+
+    function loadSong(index) {
+        songIndex = index;
+        song.src = songs[index].src;
+        songImg.src = songs[index].img;
+        songTitle.textContent = songs[index].title;
+        songArtist.textContent = songs[index].artist;
+        song.load();
+        song.play();
+        ctrlIcon.classList.add("fa-pause");
+        ctrlIcon.classList.remove("fa-play");
+    }
+
+
+    // Load the first song initially
+    loadSong(0);
+</script>
+</body>
+</html>
